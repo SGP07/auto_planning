@@ -1,9 +1,40 @@
 import pandas as pd
 from bs4 import BeautifulSoup
+import json
+import datetime
 
 input_file = "input.xlsx"
 
-def get_planning(input_file, groups):
+def get_week_data():
+    with open("week.json", 'r') as f:
+        data = json.load(f)
+    last_update_date_str = data['last_update']
+    if last_update_date_str:
+        last_update_date = datetime.datetime.strptime(last_update_date_str, '%Y-%m-%d').date()
+    data['last_update'] = last_update_date
+    return data
+
+def update_week_data(week, today):
+    with open("week.json", 'w') as f:
+        json.dump({'week': week, 'last_update': today.isoformat()}, f)
+    
+def update_week():
+    today = datetime.date.today()
+    data = get_week_data()
+    week = data['week']
+    last_update = data['last_update']
+
+    if last_update and today.isocalendar()[1] == last_update.isocalendar()[1]:
+        print('Week number remains the same.')
+    else:
+        week += today.isocalendar()[1] - last_update.isocalendar()[1]
+        update_week_data(week, today)
+        print('updated')
+    
+    return week
+
+
+def get_planning(input_file, groups, selected_week = 0):
 
     df = pd.read_excel(input_file)  
     groups = [g.upper() for g in groups]  
@@ -35,7 +66,8 @@ def get_planning(input_file, groups):
 
     new_df = pd.DataFrame(index=times, columns=days)
 
-    current_week = 3
+    current_week = update_week() + selected_week
+    print(f"current_week : {current_week}")
     week_columns = [col for col in df.columns if df[col][0] == current_week]
 
 

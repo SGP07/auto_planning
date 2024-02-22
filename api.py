@@ -1,6 +1,6 @@
 from utils import get_planning, get_css, add_class_to_td
 from fastapi import FastAPI, File, UploadFile
-from typing import List
+from typing import Optional
 from tempfile import TemporaryDirectory
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,8 +22,8 @@ async def root():
     return {"HealthCheck": "OK"}
 
 @app.post("/uploadfile/")
-async def upload_file(file: UploadFile = File(...),  groups: List[str] = ['TPD', 'TDC']):
-
+async def upload_file(file: UploadFile = File(...),  tp: Optional[str] = 'TPD', td:Optional[str] = 'TDC', selected_week:int = 0):
+    groups = [tp, td]
     print(groups)
     with TemporaryDirectory() as temp:
         file_path = f"{temp}/planning.xlsx"
@@ -31,7 +31,7 @@ async def upload_file(file: UploadFile = File(...),  groups: List[str] = ['TPD',
         with open(file_path, "wb") as f:
             f.write(file.file.read())
 
-        new_df = get_planning(file_path, groups)
+        new_df = get_planning(file_path, groups, selected_week)
 
     html_table = new_df.to_html()
     html_table = add_class_to_td(html_table)
