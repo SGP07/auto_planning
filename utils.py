@@ -93,13 +93,13 @@ td {
 }
 /* Apply color based on cell content */
 .TP {
-  background-color: #FAF3E0;
+  /*background-color: #FAF3E0;*/
 }
 .TD {
-  background-color: #F5F5DC;
+  /*background-color: #F5F5DC;*/
 }
 .CM {
-  background-color: #FAF3E0;
+  /*background-color: #FAF3E0;*/
 }
 </style>
     """
