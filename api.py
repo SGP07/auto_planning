@@ -22,7 +22,7 @@ async def root():
     return {"HealthCheck": "OK"}
 
 @app.post("/uploadfile/")
-async def upload_file(file: UploadFile = File(...),  tp: Optional[str] = 'TPD', td:Optional[str] = 'TDC', selected_week:int = 0):
+async def upload_file(file: UploadFile = File(...),  tp: Optional[str] = 'TPD', td:Optional[str] = 'TDC', selected_week:int = 0, flip:bool= False):
     groups = [tp, td]
     print(groups)
     with TemporaryDirectory() as temp:
@@ -31,7 +31,7 @@ async def upload_file(file: UploadFile = File(...),  tp: Optional[str] = 'TPD', 
         with open(file_path, "wb") as f:
             f.write(file.file.read())
 
-        new_df = get_planning(file_path, groups, selected_week)
+        new_df = get_planning(file_path, groups, selected_week, flip)
 
     html_table = new_df.to_html()
     html_table = add_class_to_td(html_table)

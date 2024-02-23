@@ -2,6 +2,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import json
 import datetime
+import re
 
 input_file = "input.xlsx"
 
@@ -34,12 +35,12 @@ def update_week():
     return week
 
 
-def get_planning(input_file, groups, selected_week = 0):
+def get_planning(input_file, groups, selected_week = 0, flip=False):
 
     df = pd.read_excel(input_file)  
     groups = [g.upper() for g in groups]  
-    groups.append('CM')
-    groups = tuple(groups)
+    regex_pattern = '|'.join([re.escape(group[:2]) + r'(?:\s?GR)?' + re.escape(group[2:]) for group in groups])
+    regex_pattern += "|CM"
 
     df = df.drop(df.columns[0], axis=1)
     df = df.drop(index=range(6))
@@ -85,7 +86,7 @@ def get_planning(input_file, groups, selected_week = 0):
     for i in range(len(df)):
         for col in week_columns:
             cours = df[col][i]
-            if isinstance(cours, str) and cours.startswith(groups):
+            if isinstance(cours, str) and re.match(regex_pattern, cours):
                 day = df['Day'][i]
                 time = df['Time'][i].strip()
                 if day == 'Vendredi' and time in ['14H30-16H20', '16H30-18H20']:  # Adjust time for Friday
@@ -99,8 +100,8 @@ def get_planning(input_file, groups, selected_week = 0):
     pd.set_option('display.width', -1)
     pd.set_option('display.max_rows', None)
 
-    # print(new_df)
-    return new_df
+    return new_df.transpose() if flip else new_df
+
 
 
 def get_css():
@@ -123,16 +124,7 @@ td {
   text-align: left;
   padding: 8px;
 }
-/* Apply color based on cell content */
-.TP {
-  /*background-color: #FAF3E0;*/
-}
-.TD {
-  /*background-color: #F5F5DC;*/
-}
-.CM {
-  /*background-color: #FAF3E0;*/
-}
+
 </style>
     """
     return css

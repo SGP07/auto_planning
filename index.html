@@ -24,6 +24,11 @@
   <input type="text" id="group1" name="group1" placeholder="TPD"><br><br>
   <label for="group2">Group TD:</label>
   <input type="text" id="group2" name="group2" placeholder="TDC"><br><br>
+  <label for="flip">Select Flip:</label>
+  <select id="flip" name="flip">
+    <option value="false">Normal</option>
+    <option value="true">Flipped</option>
+  </select><br><br>
   <button type="submit">Submit</button>
 </form>
 
@@ -37,14 +42,14 @@
     const file = fileInput.files[0];
     const group1 = document.getElementById('group1').value.toUpperCase();
     const group2 = document.getElementById('group2').value.toUpperCase();
+    const flip = document.getElementById('flip').value === 'true';
 
     const formData = new FormData();
     formData.append('file', file, file.name);
-    formData.append('groups', group1);
-    formData.append('groups', group2);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/uploadfile/', {
+      const url = `http://127.0.0.1:8000/uploadfile/?tp=${group1}&td=${group2}&selected_week=0&flip=${flip}`;
+      const response = await fetch(url, {
         method: 'POST',
         body: formData
       });
