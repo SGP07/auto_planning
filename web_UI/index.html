@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple Planning</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/x-icon" href="cells.png">
+
+</head>
+<body>
+<div class="wrapper">
+  <div class="container">
+    <h1>Simple planning</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <label for="file">Select File:</label>
+      <input type="file" id="file" name="file"><br><br>
+      <label for="group1">Group TP:</label>
+      <input type="text" id="group1" name="group1" placeholder="TPD"><br><br>
+      <label for="group2">Group TD:</label>
+      <input type="text" id="group2" name="group2" placeholder="TDC"><br><br>
+      <label for="flip">Select Flip:</label>
+      <select id="flip" name="flip">
+        <option value="false">Normal</option>
+        <option value="true">Flipped</option>
+      </select><br><br>
+      <button type="submit">Submit</button>
+    </form>
+
+    <div id="weekDisplay">
+      <p>Week: <span id="currentWeek"></span></p>
+      <div class="button-container">
+        <button id="prevWeek">Previous week</button>
+        <button id="nextWeek">Next week</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultContainer"></div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
