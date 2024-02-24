@@ -84,7 +84,7 @@ def get_planning(input_file, groups, selected_week = 0, flip=False):
         prev_col = col
             
     for i in range(len(df)):
-        for col in week_columns:
+        for col in week_columns[:7]:
             cours = df[col][i]
             if isinstance(cours, str) and re.match(regex_pattern, cours):
                 day = df['Day'][i]
