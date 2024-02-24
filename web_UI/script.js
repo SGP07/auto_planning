@@ -78,3 +78,16 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
     console.error(error);
   }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+  var feedbackButton = document.getElementById('toggleFeedback');
+  var feedbackIframe = document.getElementById('feedback');
+
+  feedbackButton.addEventListener('click', function() {
+    if (feedbackIframe.style.display === 'none') {
+      feedbackIframe.style.display = 'block';
+    } else {
+      feedbackIframe.style.display = 'none';
+    }
+  });
+});
