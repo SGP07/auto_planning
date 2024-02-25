@@ -37,7 +37,6 @@ body {
   #resultContainer:not(:empty) {
     display: block; /* Show if not empty */
   }
-    
   h1 {
     font-size: 24px;
     margin-top: 0; /* Remove top margin */
