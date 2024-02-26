@@ -58,7 +58,10 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
   formData.append('file', file, file.name);
 
   try {
-    const url = `https://auto-planner-by-rayan-api.vercel.app/uploadfile/?tp=${group1}&td=${group2}&selected_week=${weekOffset}&flip=${flip}`; 
+    // const url = `https://auto-planner-by-rayan-api.vercel.app/uploadfile/?tp=${group1}&td=${group2}&selected_week=${weekOffset}&flip=${flip}`; 
+    const url = `http://127.0.0.1:8000/uploadfile/?tp=${group1}&td=${group2}&selected_week=${weekOffset}&flip=${flip}`; 
+
+    
     const response = await fetch(url, {
       method: 'POST',
       body: formData
