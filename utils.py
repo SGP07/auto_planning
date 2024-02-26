@@ -1,24 +1,45 @@
 import pandas as pd
 from bs4 import BeautifulSoup
-import json
+import sqlite3
 import datetime
 import re
 
 input_file = "input.xlsx"
 
 def get_week_data():
-    with open("week.json", 'r') as f:
-        data = json.load(f)
-    last_update_date_str = data['last_update']
-    if last_update_date_str:
+    conn = sqlite3.connect('week.db')
+    cursor = conn.cursor()
+
+    cursor.execute("CREATE TABLE IF NOT EXISTS week_data (week INTEGER, last_update TEXT)")
+    conn.commit()
+
+    cursor.execute("SELECT * FROM week_data")
+    row = cursor.fetchone()
+    if row:
+        week, last_update_date_str = row
         last_update_date = datetime.datetime.strptime(last_update_date_str, '%Y-%m-%d').date()
-    data['last_update'] = last_update_date
-    return data
+    else:
+        week = 4  # Initialize week to 4
+        last_update_date = datetime.date.today()  # Initialize last update to today's date
+        cursor.execute("INSERT INTO week_data VALUES (?, ?)", (week, last_update_date.isoformat()))
+        conn.commit()
+
+    conn.close()
+    return {'week': week, 'last_update': last_update_date}
 
 def update_week_data(week, today):
-    with open("week.json", 'w') as f:
-        json.dump({'week': week, 'last_update': today.isoformat()}, f)
-    
+    conn = sqlite3.connect('week.db')
+    cursor = conn.cursor()
+
+    cursor.execute("CREATE TABLE IF NOT EXISTS week_data (week INTEGER, last_update TEXT)")
+    conn.commit()
+
+    cursor.execute("DELETE FROM week_data")
+    cursor.execute("INSERT INTO week_data VALUES (?, ?)", (week, today.isoformat()))
+
+    conn.commit()
+    conn.close()
+
 def update_week():
     today = datetime.date.today()
     data = get_week_data()
@@ -31,7 +52,7 @@ def update_week():
         week += today.isocalendar()[1] - last_update.isocalendar()[1]
         update_week_data(week, today)
         print('updated')
-    
+
     return week
 
 

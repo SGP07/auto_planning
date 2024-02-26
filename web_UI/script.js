@@ -12,17 +12,16 @@ const formatDate = (date) => {
 const updateWeekDisplay = (startOfWeek, endOfWeek) => {
   weekDisplay.textContent = `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`;
 };
-
 // Get the current date
 let currentDate = new Date();
 let weekOffset = 0; // Initialize week offset
 
 // Find the first day of the current week (assuming Monday is the first day of the week)
 let startOfWeek = new Date(currentDate);
-startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + weekOffset * 7); // Monday
+startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + (currentDate.getDay() === 0 ? -6 : 1) + weekOffset * 7); // Monday
 
 // Find the last day of the current week
-let endOfWeek = new Date(currentDate);
+let endOfWeek = new Date(startOfWeek);
 endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
 
 // Update week display with the current week
@@ -32,7 +31,7 @@ updateWeekDisplay(startOfWeek, endOfWeek);
 prevWeekBtn.addEventListener('click', () => {
   weekOffset--; // Move back 1 week
   startOfWeek.setDate(startOfWeek.getDate() - 7); // Monday of the new week
-  endOfWeek.setDate(endOfWeek.getDate()- 7); // Sunday of the new week
+  endOfWeek.setDate(endOfWeek.getDate() - 7); // Sunday of the new week
   updateWeekDisplay(startOfWeek, endOfWeek);
 });
 
@@ -40,9 +39,11 @@ prevWeekBtn.addEventListener('click', () => {
 nextWeekBtn.addEventListener('click', () => {
   weekOffset++; // Move forward 1 week
   startOfWeek.setDate(startOfWeek.getDate() + 7); // Monday of the new week
-  endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday of the new week
+  endOfWeek.setDate(endOfWeek.getDate() + 7); // Sunday of the new week
   updateWeekDisplay(startOfWeek, endOfWeek);
 });
+
+
 
 document.getElementById('uploadForm').addEventListener('submit', async function(event) {
   event.preventDefault();
