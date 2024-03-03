@@ -20,10 +20,11 @@ body {
     margin: 0 auto;
     padding: 20px;
     background-color: #fff;
-    border-radius: 5px;
+    border-radius: 20px; /* Add border-radius */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     text-align: center; /* Center align the content */
   }
+  
   
   #resultContainer {
     margin-top: 20px;
@@ -32,6 +33,14 @@ body {
     background-color: #f9f9f9;
     overflow-wrap: break-word;
     display: none; /* Hide by default */
+    max-width: 1000px; /* Limit the width */
+    margin: 0 auto; /* Center the container */
+    text-align: center; /* Center align the content */
+  }
+  
+  #resultContainer h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
   }
   
   #resultContainer:not(:empty) {
@@ -69,7 +78,7 @@ body {
     background-color: #007bff;
     color: #fff;
     border: none;
-    border-radius: 4px;
+    border-radius: 20px;
     cursor: pointer;
   }
   
@@ -113,10 +122,56 @@ body {
     padding-top: 10px;
   }
 
-
-  /*
-  .CM {
-     background-color: red;
-    }
-    */
+  .message-container {
+    background-color: #f44336; /* Default color for error messages */
+    color: white;
+    padding: 10px;
+    text-align: center;
+    display: none;
+    position: fixed;
+    top: 20px; /* Change to top */
+    right: 20px; /* Change to right */
+    z-index: 9999;
+    border-radius: 5px;
+  }
   
+  .message-container.success {
+    background-color: #4CAF50; /* Color for success messages */
+  }
+  
+
+  /* Reset default table styles */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+/* Table header */
+th {
+  background-color: #f2f2f2;
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+/* Table rows */
+tr {
+  border: 1px solid #ddd;
+}
+
+/* Alternate row colors for better readability */
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Table cells */
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+/* Hover effect for rows */
+tr:hover {
+  background-color: #f2f2f2;
+}
