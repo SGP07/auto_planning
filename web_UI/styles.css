@@ -181,7 +181,7 @@ tr:hover {
 }
 
 #colorSelection {
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 input[type="color"] {
@@ -218,4 +218,8 @@ b {
 
 #downloadImage:hover {
   background-color: #0056b3;
+}
+
+#toggleFeedback {
+  margin-bottom: 20px;
 }
