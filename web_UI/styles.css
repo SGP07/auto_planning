@@ -177,3 +177,28 @@ td {
 tr:hover {
   background-color: #f2f2f2;
 }
+
+#colorSelection {
+  margin-top: 10px;
+}
+
+input[type="color"] {
+  background-color: #fff;
+  padding: 10px;
+  width: 200px;
+  height: 30px;
+  cursor: pointer;
+  border: 2px solid #000;
+  border-radius: 3px;
+  margin: 20px;
+}
+
+b {
+	background-color: #fff;
+	padding: 16px;
+	font-family: sans-serif;
+}
+#colorSelection {
+  display: flex;
+  justify-content: space-around;
+}

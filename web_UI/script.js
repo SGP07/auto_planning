@@ -172,3 +172,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+const CMinput = document.getElementById("CMcolorPicker");
+const TPinput = document.getElementById("TPcolorPicker");
+const TDinput = document.getElementById("TDcolorPicker");
+
+CMinput.addEventListener("input", setColor);
+TPinput.addEventListener("input", setColor);
+TDinput.addEventListener("input", setColor);
+
+function setColor() {
+  document.querySelectorAll('.CM').forEach((element) => {
+    element.style.backgroundColor = CMinput.value;
+  });
+  document.querySelectorAll('.TP').forEach((element) => {
+    element.style.backgroundColor = TPinput.value;
+  });
+  document.querySelectorAll('.TD').forEach((element) => {
+    element.style.backgroundColor = TDinput.value;
+  });
+}
