@@ -20,6 +20,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const styleTag = document.createElement('style');
     styleTag.innerHTML = data.data.css;
     document.head.appendChild(styleTag);
+
+    const savedColors = localStorage.getItem('selectedColors');
+  if (savedColors) {
+    const { CM, TP, TD } = JSON.parse(savedColors);
+    CMinput.value = CM;
+    TPinput.value = TP;
+    TDinput.value = TD;
+    setColor(); // Update the colors based on the saved values
+  }
+
   }
 });
 
@@ -191,4 +201,11 @@ function setColor() {
   document.querySelectorAll('.TD').forEach((element) => {
     element.style.backgroundColor = TDinput.value;
   });
+
+  const selectedColors = {
+    CM: CMinput.value,
+    TP: TPinput.value,
+    TD: TDinput.value
+  };
+  localStorage.setItem('selectedColors', JSON.stringify(selectedColors));
 }
