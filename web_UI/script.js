@@ -209,3 +209,19 @@ function setColor() {
   };
   localStorage.setItem('selectedColors', JSON.stringify(selectedColors));
 }
+
+$(document).ready(function(){
+  var element = $("#resultContainer");
+
+  $("#downloadImage").on('click', function(){
+
+    html2canvas(element, {
+      onrendered: function(canvas) {
+        var imageData = canvas.toDataURL("image/jpg");
+        var newData = imageData.replace(/^data:image\/jpg/, "data:application/octet-stream");
+        $("#downloadImage").attr("download", "image.jpg").attr("href", newData);
+      }
+    });
+
+  });
+});

@@ -29,7 +29,7 @@ body {
   
   #resultContainer {
     margin-top: 20px;
-    padding: 10px;
+    padding: 50px;
     border: 1px solid #ccc;
     background-color: #f9f9f9;
     overflow-wrap: break-word;
@@ -37,6 +37,8 @@ body {
     max-width: 1000px; /* Limit the width */
     margin: 0 auto; /* Center the container */
     text-align: center; /* Center align the content */
+    border-radius: 5px; /* Add border-radius */
+
   
   }
   
@@ -201,4 +203,19 @@ b {
 #colorSelection {
   display: flex;
   justify-content: space-around;
+}
+#downloadImage {
+  display: block;
+  width: 100px;
+  padding: 10px;
+  text-align: center;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 5px;
+  margin-top: 20px;
+  text-decoration: none;
+}
+
+#downloadImage:hover {
+  background-color: #0056b3;
 }
