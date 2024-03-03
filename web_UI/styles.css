@@ -23,6 +23,7 @@ body {
     border-radius: 20px; /* Add border-radius */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     text-align: center; /* Center align the content */
+    margin-bottom: 10px;
   }
   
   
@@ -36,6 +37,7 @@ body {
     max-width: 1000px; /* Limit the width */
     margin: 0 auto; /* Center the container */
     text-align: center; /* Center align the content */
+  
   }
   
   #resultContainer h3 {
