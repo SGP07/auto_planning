@@ -1,59 +1,14 @@
 import pandas as pd
 from bs4 import BeautifulSoup
-import sqlite3
 import datetime
 import re
 
 input_file = "input.xlsx"
 
-def get_week_data():
-    conn = sqlite3.connect('week.db')
-    cursor = conn.cursor()
-
-    cursor.execute("CREATE TABLE IF NOT EXISTS week_data (week INTEGER, last_update TEXT)")
-    conn.commit()
-
-    cursor.execute("SELECT * FROM week_data")
-    row = cursor.fetchone()
-    if row:
-        week, last_update_date_str = row
-        last_update_date = datetime.datetime.strptime(last_update_date_str, '%Y-%m-%d').date()
-    else:
-        week = 4  # Initialize week to 4
-        last_update_date = datetime.date.today()  # Initialize last update to today's date
-        cursor.execute("INSERT INTO week_data VALUES (?, ?)", (week, last_update_date.isoformat()))
-        conn.commit()
-
-    conn.close()
-    return {'week': week, 'last_update': last_update_date}
-
-def update_week_data(week, today):
-    conn = sqlite3.connect('week.db')
-    cursor = conn.cursor()
-
-    cursor.execute("CREATE TABLE IF NOT EXISTS week_data (week INTEGER, last_update TEXT)")
-    conn.commit()
-
-    cursor.execute("DELETE FROM week_data")
-    cursor.execute("INSERT INTO week_data VALUES (?, ?)", (week, today.isoformat()))
-
-    conn.commit()
-    conn.close()
-
-def update_week():
+def current_week():
     today = datetime.date.today()
-    data = get_week_data()
-    week = data['week']
-    last_update = data['last_update']
-
-    if last_update and today.isocalendar()[1] == last_update.isocalendar()[1]:
-        print('Week number remains the same.')
-    else:
-        week += today.isocalendar()[1] - last_update.isocalendar()[1]
-        update_week_data(week, today)
-        print('updated')
-
-    return week
+    week_num = today.isocalendar()[1] - 5
+    return week_num
 
 
 def get_planning(input_file, groups, selected_week = 0, flip=False):
