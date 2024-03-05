@@ -5,7 +5,7 @@ import re
 
 input_file = "input.xlsx"
 
-def current_week():
+def get_current_week():
     today = datetime.date.today()
     week_num = today.isocalendar()[1] - 5
     return week_num
@@ -43,7 +43,7 @@ def get_planning(input_file, groups, selected_week = 0, flip=False):
 
     new_df = pd.DataFrame(index=times, columns=days)
 
-    current_week = current_week() + selected_week
+    current_week = get_current_week() + selected_week
     print(f"current_week : {current_week}")
     week_columns = [col for col in df.columns if df[col][0] == current_week]
 
