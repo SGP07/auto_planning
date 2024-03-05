@@ -43,7 +43,7 @@ def get_planning(input_file, groups, selected_week = 0, flip=False):
 
     new_df = pd.DataFrame(index=times, columns=days)
 
-    current_week = update_week() + selected_week
+    current_week = current_week() + selected_week
     print(f"current_week : {current_week}")
     week_columns = [col for col in df.columns if df[col][0] == current_week]
 
