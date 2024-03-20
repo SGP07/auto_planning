@@ -224,3 +224,8 @@ b {
 #toggleFeedback {
   margin-bottom: 20px;
 }
+
+.CC {
+  background-color: #e36b6b;
+  /* font-weight: bold; */
+}
