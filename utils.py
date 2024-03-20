@@ -16,7 +16,7 @@ def get_planning(input_file, groups, selected_week = 0, flip=False):
     df = pd.read_excel(input_file)  
     groups = [g.upper() for g in groups]  
     regex_pattern = '|'.join([re.escape(group[:2]) + r'(?:\s?GR)?' + re.escape(group[2:]) for group in groups])
-    regex_pattern += "|CM"
+    regex_pattern += "|CM |CC"
 
     df = df.drop(df.columns[0], axis=1)
     df = df.drop(index=range(6))
