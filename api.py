@@ -2,6 +2,7 @@ from utils import get_planning, get_css, add_class_to_td
 from fastapi import FastAPI, File, UploadFile
 from typing import Optional
 from tempfile import TemporaryDirectory
+from json import loads
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -35,6 +36,8 @@ async def upload_file(file: UploadFile = File(...),  tp: Optional[str] = 'TPD', 
 
     html_table = new_df.to_html()
     html_table = add_class_to_td(html_table)
+    result = new_df.to_json(orient="columns")
+    parsed = loads(result)
     css = get_css()
 
-    return {"html": html_table, "css":css}
+    return {"html": html_table, "css":css, "data":parsed}
