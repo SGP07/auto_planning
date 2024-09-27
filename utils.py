@@ -7,7 +7,7 @@ input_file = "input.xlsx"
 
 def get_current_week():
     today = datetime.date.today()
-    week_num = today.isocalendar()[1] - 5
+    week_num = today.isocalendar()[1] - 36
     return week_num
 
 
