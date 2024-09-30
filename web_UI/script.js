@@ -1,227 +1,153 @@
+// DOM Elements
 const weekDisplay = document.getElementById('currentWeek');
 const prevWeekBtn = document.getElementById('prevWeek');
 const nextWeekBtn = document.getElementById('nextWeek');
-
-
-// Load the saved API result from localStorage when the website loads
-document.addEventListener('DOMContentLoaded', function() {
-  const savedData = localStorage.getItem('apiResult');
-  if (savedData) {
-    const data = JSON.parse(savedData);
-    const resultContainer = document.getElementById('resultContainer');
-
-    // Append the saved message and API result
-    const messageContainer = document.createElement('h3');
-    messageContainer.innerHTML = data.message;
-    resultContainer.appendChild(messageContainer);
-    resultContainer.innerHTML += data.data.html;
-
-    // Add CSS to <style> tag in <head>
-    const styleTag = document.createElement('style');
-    styleTag.innerHTML = data.data.css;
-    document.head.appendChild(styleTag);
-
-    const savedColors = localStorage.getItem('selectedColors');
-  if (savedColors) {
-    const { CM, TP, TD } = JSON.parse(savedColors);
-    CMinput.value = CM;
-    TPinput.value = TP;
-    TDinput.value = TD;
-    setColor(); // Update the colors based on the saved values
-  }
-
-  }
-});
-
-
-// Function to format date as "dd mmm" (e.g., "24 Feb")
-const formatDate = (date) => {
-  const options = { day: 'numeric', month: 'short' };
-  return new Intl.DateTimeFormat('en-US', options).format(date);
+const uploadForm = document.getElementById('uploadForm');
+const resultContainer = document.getElementById('resultContainer');
+const messageContainer = document.getElementById('messageContainer');
+const loadingCircle = document.getElementById('loadingCircle');
+const feedbackButton = document.getElementById('toggleFeedback');
+const feedbackIframe = document.getElementById('feedback');
+const colorPickers = {
+  CM: document.getElementById("CMcolorPicker"),
+  TP: document.getElementById("TPcolorPicker"),
+  TD: document.getElementById("TDcolorPicker")
 };
 
-// Function to update week display
-const updateWeekDisplay = (startOfWeek, endOfWeek) => {
+// Date handling
+let currentDate = new Date();
+let weekOffset = 0;
+let startOfWeek = new Date(currentDate);
+let endOfWeek = new Date(startOfWeek);
+
+// Helper functions
+const formatDate = (date) => {
+  return new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short' }).format(date);
+};
+
+const updateWeekDisplay = () => {
   weekDisplay.textContent = `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`;
 };
 
-// Function to display a message
 const displayMessage = (message, isSuccess) => {
-  const messageContainer = document.getElementById('messageContainer');
   messageContainer.textContent = message;
   messageContainer.style.display = 'block';
-  messageContainer.style.backgroundColor = isSuccess ? '#4CAF50' : '#f44336'; // Green for success, red for error
-  setTimeout(() => {
-    messageContainer.style.display = 'none'; // Hide the message after 3 seconds
-  }, 3000);
+  messageContainer.style.backgroundColor = isSuccess ? '#4CAF50' : '#f44336';
+  setTimeout(() => messageContainer.style.display = 'none', 3000);
 };
 
-// Function to show the loading circle
-const showLoadingCircle = () => {
-  document.getElementById('loadingCircle').style.display = 'block';
+const toggleLoadingCircle = (show) => {
+  loadingCircle.style.display = show ? 'block' : 'none';
 };
 
-// Function to hide the loading circle
-const hideLoadingCircle = () => {
-  document.getElementById('loadingCircle').style.display = 'none';
+const displayPlanningMessage = (group1, group2) => {
+  const messageElement = document.createElement('h3');
+  messageElement.innerHTML = `Groups: ${group1} and ${group2}<br>Week: ${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`;
+  resultContainer.prepend(messageElement);
 };
 
-const displayPlanningMessage = (group1, group2, startOfWeek, endOfWeek) => {
-  const messageContainer = document.createElement('h3');
-  const formattedStartOfWeek = formatDate(startOfWeek);
-  const formattedEndOfWeek = formatDate(endOfWeek);
-  messageContainer.innerHTML = `Groups: ${group1} and ${group2}<br>Week: ${formattedStartOfWeek} - ${formattedEndOfWeek}`;
-  document.getElementById('resultContainer').prepend(messageContainer);
+// Week navigation
+const updateWeek = (offset) => {
+  weekOffset += offset;
+  startOfWeek.setDate(startOfWeek.getDate() + offset * 7);
+  endOfWeek.setDate(endOfWeek.getDate() + offset * 7);
+  updateWeekDisplay();
 };
 
+// Color handling
+const setColor = () => {
+  Object.entries(colorPickers).forEach(([className, input]) => {
+    document.querySelectorAll(`.${className}`).forEach(element => {
+      element.style.backgroundColor = input.value;
+    });
+  });
+  localStorage.setItem('selectedColors', JSON.stringify(Object.fromEntries(
+    Object.entries(colorPickers).map(([key, input]) => [key, input.value])
+  )));
+};
 
-// Get the current date
-let currentDate = new Date();
-let weekOffset = 0; // Initialize week offset
+// Form submission
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  const fileInput = document.getElementById('file');
+  const file = fileInput.files[0];
+  const group1 = document.getElementById('group1').value.toUpperCase();
+  const group2 = document.getElementById('group2').value.toUpperCase();
+  const flip = document.getElementById('flip').value === 'true';
 
-// Find the first day of the current week (assuming Monday is the first day of the week)
-let startOfWeek = new Date(currentDate);
-startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + (currentDate.getDay() === 0 ? -6 : 1) + weekOffset * 7); // Monday
+  if (!file) return displayMessage('Please select a file', false);
+  if (!group1.trim() || !group2.trim()) return displayMessage('Please fill in all fields', false);
 
-// Find the last day of the current week
-let endOfWeek = new Date(startOfWeek);
-endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
+  toggleLoadingCircle(true);
+  const formData = new FormData();
+  formData.append('file', file, file.name);
 
-// Update week display with the current week
-updateWeekDisplay(startOfWeek, endOfWeek);
+  try {
+    const url = `https://auto-planning.vercel.app/uploadfile/?tp=${group1}&td=${group2}&selected_week=${weekOffset}&flip=${flip}`;
+    const response = await fetch(url, { method: 'POST', body: formData });
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
 
-// Event listener for previous week button
-prevWeekBtn.addEventListener('click', () => {
-  weekOffset--; // Move back 1 week
-  startOfWeek.setDate(startOfWeek.getDate() - 7); // Monday of the new week
-  endOfWeek.setDate(endOfWeek.getDate() - 7); // Sunday of the new week
-  updateWeekDisplay(startOfWeek, endOfWeek);
-});
+    resultContainer.innerHTML = data.html;
+    const styleTag = document.createElement('style');
+    styleTag.innerHTML = data.css;
+    document.head.appendChild(styleTag);
 
-// Event listener for next week button
-nextWeekBtn.addEventListener('click', () => {
-  weekOffset++; // Move forward 1 week
-  startOfWeek.setDate(startOfWeek.getDate() + 7); // Monday of the new week
-  endOfWeek.setDate(endOfWeek.getDate() + 7); // Sunday of the new week
-  updateWeekDisplay(startOfWeek, endOfWeek);
-});
+    displayMessage('Submitted successfully', true);
+    displayPlanningMessage(group1, group2);
 
-
-
-
-document.getElementById('uploadForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
-  
-    const fileInput = document.getElementById('file');
-    const file = fileInput.files[0];
-    const group1 = document.getElementById('group1').value.toUpperCase();
-    const group2 = document.getElementById('group2').value.toUpperCase();
-    const flip = document.getElementById('flip').value === 'true';
-  
-    // Check if the file is selected
-    if (!file) {
-      displayMessage('Please select a file', false, 'error'); // Display error message
-      return;
-    }
-  
-    // Check if any field is empty
-    if (group1.trim() === '' || group2.trim() === '') {
-      displayMessage('Please fill in all fields', false, 'error'); // Display error message
-      return;
-    }
-  
-    showLoadingCircle(); // Show the loading circle
-  
-    const formData = new FormData();
-    formData.append('file', file, file.name);
-  
-    try {
-      const url = `https://auto-planning.vercel.app/uploadfile/?tp=${group1}&td=${group2}&selected_week=${weekOffset}&flip=${flip}`;
-  
-      const response = await fetch(url, {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-  
-      // Display the HTML result
-      const resultContainer = document.getElementById('resultContainer');
-      resultContainer.innerHTML = data.html;
-      console.log("loaded")
-  
-      // Add CSS to <style> tag in <head>
-      const styleTag = document.createElement('style');
-      styleTag.innerHTML = data.css;
-      document.head.appendChild(styleTag);
-  
-      displayMessage('Submitted successfully', true, 'success');
-      displayPlanningMessage(group1, group2, startOfWeek, endOfWeek);
-     // Save the API result to localStorage
-     const apiResult = {
+    localStorage.setItem('apiResult', JSON.stringify({
       message: `Groups: ${group1} and ${group2}<br>Week: ${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`,
       data: data
-    };
-    localStorage.setItem('apiResult', JSON.stringify(apiResult));
-    } catch (error) {
-      alert('An error occurred');
-      console.error(error);
-    } finally {
-      hideLoadingCircle(); // Hide the loading circle
-    }
-  });
+    }));
+  } catch (error) {
+    console.error('Error:', error);
+    displayMessage('An error occurred. Please try again.', false);
+  } finally {
+    toggleLoadingCircle(false);
+  }
+};
 
-document.addEventListener('DOMContentLoaded', function() {
-  var feedbackButton = document.getElementById('toggleFeedback');
-  var feedbackIframe = document.getElementById('feedback');
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  // Load saved data
+  const savedData = JSON.parse(localStorage.getItem('apiResult'));
+  if (savedData) {
+    const messageElement = document.createElement('h3');
+    messageElement.innerHTML = savedData.message;
+    resultContainer.appendChild(messageElement);
+    resultContainer.innerHTML += savedData.data.html;
 
-  feedbackButton.addEventListener('click', function() {
-    if (feedbackIframe.style.display === 'none') {
-      feedbackIframe.style.display = 'block';
-    } else {
-      feedbackIframe.style.display = 'none';
-    }
-  });
+    const styleTag = document.createElement('style');
+    styleTag.innerHTML = savedData.data.css;
+    document.head.appendChild(styleTag);
+  }
+
+  const savedColors = JSON.parse(localStorage.getItem('selectedColors'));
+  if (savedColors) {
+    Object.entries(savedColors).forEach(([key, value]) => {
+      colorPickers[key].value = value;
+    });
+    setColor();
+  }
+
+  updateWeekDisplay();
 });
 
-const CMinput = document.getElementById("CMcolorPicker");
-const TPinput = document.getElementById("TPcolorPicker");
-const TDinput = document.getElementById("TDcolorPicker");
+prevWeekBtn.addEventListener('click', () => updateWeek(-1));
+nextWeekBtn.addEventListener('click', () => updateWeek(1));
+uploadForm.addEventListener('submit', handleSubmit);
+feedbackButton.addEventListener('click', () => {
+  feedbackIframe.style.display = feedbackIframe.style.display === 'none' ? 'block' : 'none';
+});
 
-CMinput.addEventListener("input", setColor);
-TPinput.addEventListener("input", setColor);
-TDinput.addEventListener("input", setColor);
+Object.values(colorPickers).forEach(input => input.addEventListener('input', setColor));
 
-function setColor() {
-  document.querySelectorAll('.CM').forEach((element) => {
-    element.style.backgroundColor = CMinput.value;
-  });
-  document.querySelectorAll('.TP').forEach((element) => {
-    element.style.backgroundColor = TPinput.value;
-  });
-  document.querySelectorAll('.TD').forEach((element) => {
-    element.style.backgroundColor = TDinput.value;
-  });
-
-  const selectedColors = {
-    CM: CMinput.value,
-    TP: TPinput.value,
-    TD: TDinput.value
-  };
-  localStorage.setItem('selectedColors', JSON.stringify(selectedColors));
-}
-
-$(document).ready(function(){
-  var element = $("#resultContainer");
-
-  $("#downloadImage").on('click', function(){
-
-    html2canvas(element, {
-      onrendered: function(canvas) {
-        var imageData = canvas.toDataURL("image/jpg");
-        var newData = imageData.replace(/^data:image\/jpg/, "data:application/octet-stream");
-        $("#downloadImage").attr("download", "image.jpg").attr("href", newData);
-      }
-    });
-
+// Image download
+$("#downloadImage").on('click', function(){
+  html2canvas($("#resultContainer")[0]).then(canvas => {
+    const imageData = canvas.toDataURL("image/jpg");
+    const newData = imageData.replace(/^data:image\/jpg/, "data:application/octet-stream");
+    this.href = newData;
   });
 });
