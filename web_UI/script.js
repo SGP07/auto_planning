@@ -19,6 +19,7 @@ let currentDate = new Date();
 let weekOffset = 0;
 let startOfWeek = new Date(currentDate);
 let endOfWeek = new Date(startOfWeek);
+endOfWeek.setDate(startOfWeek.getDate() + 6);
 
 // Helper functions
 const formatDate = (date) => {
@@ -71,19 +72,21 @@ const handleSubmit = async (event) => {
   event.preventDefault();
   const fileInput = document.getElementById('file');
   const file = fileInput.files[0];
-  const group1 = document.getElementById('group1').value.toUpperCase();
-  const group2 = document.getElementById('group2').value.toUpperCase();
+  const group1 = document.getElementById('group1').value.trim().toUpperCase();
+  const group2 = document.getElementById('group2').value.trim().toUpperCase();
   const flip = document.getElementById('flip').value === 'true';
 
   if (!file) return displayMessage('Please select a file', false);
-  if (!group1.trim() || !group2.trim()) return displayMessage('Please fill in all fields', false);
 
   toggleLoadingCircle(true);
   const formData = new FormData();
   formData.append('file', file, file.name);
 
   try {
-    const url = `https://auto-planning.vercel.app/uploadfile/?tp=${group1}&td=${group2}&selected_week=${weekOffset}&flip=${flip}`;
+    let url = `https://auto-planning.vercel.app/uploadfile/?selected_week=${weekOffset}&flip=${flip}`;
+    if (group1) url += `&tp=${group1}`;
+    if (group2) url += `&td=${group2}`;
+    
     const response = await fetch(url, { method: 'POST', body: formData });
     if (!response.ok) throw new Error('Network response was not ok');
     const data = await response.json();
@@ -97,7 +100,7 @@ const handleSubmit = async (event) => {
     displayPlanningMessage(group1, group2);
 
     localStorage.setItem('apiResult', JSON.stringify({
-      message: `Groups: ${group1} and ${group2}<br>Week: ${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`,
+      message: `Groups: ${group1 || ''} ${group2 ? `and ${group2}` : ''}<br>Week: ${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`,
       data: data
     }));
   } catch (error) {
@@ -107,7 +110,6 @@ const handleSubmit = async (event) => {
     toggleLoadingCircle(false);
   }
 };
-
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
   // Load saved data

@@ -23,7 +23,7 @@ async def root():
     return {"HealthCheck": "OK"}
 
 @app.post("/uploadfile/")
-async def upload_file(file: UploadFile = File(...),  tp: Optional[str] = 'TPD', td:Optional[str] = 'TDC', selected_week:int = 0, flip:bool= False):
+async def upload_file(file: UploadFile = File(...),  tp: Optional[str] = None, td:Optional[str] = None, selected_week:int = 0, flip:bool= False):
     groups = [tp, td]
     print(groups)
     with TemporaryDirectory() as temp:
