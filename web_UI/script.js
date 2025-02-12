@@ -38,7 +38,7 @@ const displayMessage = (message, isSuccess) => {
 };
 
 const toggleLoadingCircle = (show) => {
-  loadingCircle.style.display = show ? 'block' : 'none';
+  loadingCircle.style.display = show ? 'flex' : 'none';
 };
 
 const displayPlanningMessage = (group1, group2) => {

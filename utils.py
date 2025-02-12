@@ -7,7 +7,7 @@ input_file = "input.xlsx"
 
 def get_current_week():
     today = datetime.date.today()
-    week_num = today.isocalendar()[1] - 36
+    week_num = today.isocalendar()[1] - 5
     return week_num
 
 
@@ -92,6 +92,7 @@ table {
 }
 th {
   background-color: #f2f2f2;
+get_current_week()
   border: 1px solid #dddddd;
   text-align: left;
   padding: 8px;
@@ -119,3 +120,6 @@ def add_class_to_td(html_code):
     # Return the modified HTML code
     return str(soup)
 
+# print(
+    # get_current_week()
+    # )
