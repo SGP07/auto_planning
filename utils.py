@@ -92,7 +92,6 @@ table {
 }
 th {
   background-color: #f2f2f2;
-get_current_week()
   border: 1px solid #dddddd;
   text-align: left;
   padding: 8px;
