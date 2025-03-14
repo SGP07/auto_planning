@@ -18,6 +18,9 @@ const colorPickers = {
 let currentDate = new Date();
 let weekOffset = 0;
 let startOfWeek = new Date(currentDate);
+let day = startOfWeek.getDay(); // Get current day (0-6)
+startOfWeek.setDate(startOfWeek.getDate() - (day === 0 ? 6 : day - 1)); // Adjust to Monday
+
 let endOfWeek = new Date(startOfWeek);
 endOfWeek.setDate(startOfWeek.getDate() + 6);
 
