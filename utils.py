@@ -11,73 +11,69 @@ def get_current_week():
     return week_num
 
 
-def get_planning(input_file, groups, selected_week = 0, flip=False):
-    df = pd.read_excel(input_file)  
-    groups = [g.upper() for g in groups if g is not None]  
-    print(groups)
-    regex_pattern = '|'.join([re.escape(group[:2]) + r'(?:\s?(?:GR)?)?' + re.escape(group[2:]) for group in groups])
-    regex_pattern += "|CM |CC"
-    if groups == [] : regex_pattern="CM |CC"
+def get_planning(input_file, groups, selected_week=0, flip=False):
+   df = pd.read_excel(input_file)  
+   groups = [g.upper() for g in groups if g is not None]  
+   print(groups)
+   regex_pattern = '|'.join([re.escape(group[:2]) + r'(?:\s?(?:GR)?)?' + re.escape(group[2:]) for group in groups])
+   regex_pattern += "|CM |CC|exam"  
+   if groups == [] : regex_pattern="CM |CC|exam" 
 
-    df = df.drop(df.columns[0], axis=1)
-    df = df.drop(index=range(6))
-    df = df.fillna('')
-    df = df.reset_index(drop=True)
-    df = df.rename(columns={'Unnamed: 1': 'Day', 'Unnamed: 2': 'Time'})
+   df = df.drop(df.columns[0], axis=1)
+   df = df.drop(index=range(6))
+   df = df.fillna('')
+   df = df.reset_index(drop=True)
+   df = df.rename(columns={'Unnamed: 1': 'Day', 'Unnamed: 2': 'Time'})
 
-    df['Day'][0] = df['Day'][1] = 'x'
+   df['Day'][0] = df['Day'][1] = 'x'
 
+   for i in range(len(df)):
+       if df['Day'][i] == "":
+           df['Day'][i] = df['Day'][i - 1]
 
-    for i in range(len(df)):
-        if df['Day'][i] == "":
-            df['Day'][i] = df['Day'][i - 1]
+   prev_col = 'Day'
+   for col in df.columns:
+       if df[col][0] == '':
+           df[col][0] = df[prev_col][0]
+       prev_col = col
+           
+   times = ['08H30-10H20', '10H30-12H20', '14H00-15H50', '16H00-17H50']
+   days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi']
 
-    prev_col = 'Day'
-    for col in df.columns:
-        
-        if df[col][0] == '':
-            df[col][0] = df[prev_col][0]
-        prev_col = col
-            
-    times = ['08H30-10H20', '10H30-12H20', '14H00-15H50', '16H00-17H50']
-    days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi']
+   new_df = pd.DataFrame(index=times, columns=days)
 
-    new_df = pd.DataFrame(index=times, columns=days)
+   current_week = get_current_week() + selected_week
+   print(f"current_week : {current_week}")
+   week_columns = [col for col in df.columns if df[col][0] == current_week]
 
-    current_week = get_current_week() + selected_week
-    print(f"current_week : {current_week}")
-    week_columns = [col for col in df.columns if df[col][0] == current_week]
+   for i in range(len(df)):
+       if df['Day'][i] == "":
+           df['Day'][i] = df['Day'][i - 1]
 
+   prev_col = 'Day'
+   for col in df.columns:
+       if df[col][0] == '':
+           df[col][0] = df[prev_col][0]
+       prev_col = col
+           
+   for i in range(len(df)):
+       for col in week_columns[:7]:
+           cours = df[col][i]
+           if isinstance(cours, str) and re.search(regex_pattern, cours, re.IGNORECASE):
+               day = df['Day'][i]
+               time = df['Time'][i].strip()
+               if day == 'Vendredi' and time in ['14H30-16H20', '16H30-18H20']:
+                   time = '14H00-15H50' if time == '14H30-16H20' else '16H00-17H50'
+               new_df.loc[time, day] = cours
 
-    for i in range(len(df)):
-        if df['Day'][i] == "":
-            df['Day'][i] = df['Day'][i - 1]
+   new_df = new_df.fillna('')
 
-    prev_col = 'Day'
-    for col in df.columns:
-        
-        if df[col][0] == '':
-            df[col][0] = df[prev_col][0]
-        prev_col = col
-            
-    for i in range(len(df)):
-        for col in week_columns[:7]:
-            cours = df[col][i]
-            if isinstance(cours, str) and re.match(regex_pattern, cours):
-                day = df['Day'][i]
-                time = df['Time'][i].strip()
-                if day == 'Vendredi' and time in ['14H30-16H20', '16H30-18H20']:  # Adjust time for Friday
-                    time = '14H00-15H50' if time == '14H30-16H20' else '16H00-17H50'
-                new_df.loc[time, day] = cours
+   pd.set_option("display.max_column", None)
+   pd.set_option("display.max_colwidth", None)
+   pd.set_option('display.width', -1)
+   pd.set_option('display.max_rows', None)
 
-    new_df = new_df.fillna('')
-
-    pd.set_option("display.max_column", None)
-    pd.set_option("display.max_colwidth", None)
-    pd.set_option('display.width', -1)
-    pd.set_option('display.max_rows', None)
-
-    return new_df.transpose() if flip else new_df
+   return new_df.transpose() if flip else new_df
 
 
 
